@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/reusable_widgets/resuable_widget.dart';
+import 'package:untitled/screens/home_screen.dart';
+import 'package:untitled/screens/reset_password.dart';
 import 'package:untitled/screens/signup_screen.dart';
 import 'package:untitled/utils/colors_util.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -23,7 +26,7 @@ class _SignInScreenState extends State<SignInScreen> {
             gradient: LinearGradient(colors: [
           hexStringToColor("CB2B93"),
           hexStringToColor("9546C4"),
-          hexStringToColor("5E61F4"),
+          hexStringToColor("5E61F4")
         ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
         child: SingleChildScrollView(
           child: Padding(
@@ -43,9 +46,21 @@ class _SignInScreenState extends State<SignInScreen> {
                 reusableTextField("Enter Password", Icons.lock_outline, true,
                     _passwordTextController),
                 const SizedBox(
-                  height: 20,
+                  height: 5,
                 ),
-                signInSignUpButton(context, true, () {}),
+                forgetPassword(context),
+                firebaseUIButton(context, "Sign In", () {
+                  FirebaseAuth.instance
+                      .signInWithEmailAndPassword(
+                          email: _emailTextController.text,
+                          password: _passwordTextController.text)
+                      .then((value) {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()));
+                  }).onError((error, stackTrace) {
+                    print("Error ${error.toString()}");
+                  });
+                }),
                 signUpOption()
               ],
             ),
@@ -54,7 +69,8 @@ class _SignInScreenState extends State<SignInScreen> {
       ),
     );
   }
-Row signUpOption() {
+
+  Row signUpOption() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -74,4 +90,20 @@ Row signUpOption() {
     );
   }
 
+  Widget forgetPassword(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: 35,
+      alignment: Alignment.bottomRight,
+      child: TextButton(
+        child: const Text(
+          "Forgot Password?",
+          style: TextStyle(color: Colors.white70),
+          textAlign: TextAlign.right,
+        ),
+        onPressed: () => Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ResetPassword())),
+      ),
+    );
+  }
 }
